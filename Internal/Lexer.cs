@@ -141,6 +141,7 @@ namespace DialogLang
             {
                 "if" => new Token(TokenType.If, startLine, startColumn),
                 "else" => new Token(TokenType.Else, startLine, startColumn),
+                "as" => new Token(TokenType.As, startLine, startColumn),
                 "and" => new Token(TokenType.And, startLine, startColumn),
                 "or" => new Token(TokenType.Or, startLine, startColumn),
                 "not" => new Token(TokenType.Not, startLine, startColumn),

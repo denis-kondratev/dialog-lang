@@ -341,7 +341,35 @@ namespace DialogLang
                 }
                 
                 Eat(TokenType.Identifier);
-                return new InputNode(variableName);
+                
+                // Check for optional type specification: as <type>
+                InputType inputType = InputType.Any;
+                if (_currentToken.Type == TokenType.As)
+                {
+                    Eat(TokenType.As);
+                    
+                    if (_currentToken.Type != TokenType.Identifier)
+                    {
+                        throw new ParserException("Expected type name after 'as' keyword", _currentToken.Line, _currentToken.Column);
+                    }
+                    
+                    if (_currentToken.Value is not string typeName)
+                    {
+                        throw new ParserException("Type name must be a string", _currentToken.Line, _currentToken.Column);
+                    }
+                    
+                    inputType = typeName.ToLowerInvariant() switch
+                    {
+                        "number" => InputType.Number,
+                        "string" => InputType.String,
+                        "bool" => InputType.Bool,
+                        _ => throw new ParserException($"Unknown type '{typeName}'. Expected: number, string, or bool", _currentToken.Line, _currentToken.Column)
+                    };
+                    
+                    Eat(TokenType.Identifier);
+                }
+                
+                return new InputNode(variableName, inputType);
             }
 
             if (_currentToken.Type == TokenType.Identifier)

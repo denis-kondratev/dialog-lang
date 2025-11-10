@@ -25,6 +25,7 @@ namespace DialogLang
         Identifier,
         If,
         Else,
+        As,
         Output,
         Input,
         Colon,

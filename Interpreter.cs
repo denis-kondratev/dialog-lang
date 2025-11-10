@@ -15,12 +15,16 @@ namespace DialogLang
     ///     Console.WriteLine(result); // Outputs: 10, then 20, then 30.
     /// }
     /// 
-    /// // Example with input.
-    /// foreach (var result in interpreter.Run("&gt;&gt; a\nLog(a)"))
+    /// // Example with typed input.
+    /// foreach (var result in interpreter.Run("&gt;&gt; x as number\n&lt;&lt; x * 2"))
     /// {
-    ///     if (result is IInputRequest input)
+    ///     if (result is RequestNumber numberInput)
     ///     {
-    ///         input.Set(42);
+    ///         numberInput.Set(21);
+    ///     }
+    ///     else if (result != null)
+    ///     {
+    ///         Console.WriteLine(result); // Outputs: 42
     ///     }
     /// }
     /// </code>
@@ -101,7 +105,14 @@ namespace DialogLang
                 // Check if this is an input statement.
                 else if (statement is InputNode inputNode)
                 {
-                    var inputRequest = new InputRequest(inputNode.VariableName, _variables);
+                    Request inputRequest = inputNode.ExpectedType switch
+                    {
+                        InputType.Any => new RequestAny(inputNode.VariableName, value => _variables[inputNode.VariableName] = value),
+                        InputType.Number => new RequestNumber(inputNode.VariableName, value => _variables[inputNode.VariableName] = value),
+                        InputType.String => new RequestString(inputNode.VariableName, value => _variables[inputNode.VariableName] = value),
+                        InputType.Bool => new RequestBool(inputNode.VariableName, value => _variables[inputNode.VariableName] = value),
+                        _ => throw new InterpreterException($"Unknown input type: {inputNode.ExpectedType}", 0, 0)
+                    };
                     yield return inputRequest;
                 }
             }
@@ -311,6 +322,7 @@ namespace DialogLang
             {
                 null => "null",
                 string s => s,
+                double d => d.ToString("0.##"),
                 float f => f.ToString("0.##"),
                 int i => i.ToString(),
                 bool b => b ? "true" : "false",
@@ -327,8 +339,8 @@ namespace DialogLang
                 return left.ToString() + right.ToString();
             if (left is int li && right is int ri)
                 return li + ri;
-            if (left is float lf || right is float)
-                return Convert.ToSingle(left) + Convert.ToSingle(right);
+            if (left is float || right is float || left is double || right is double)
+                return Convert.ToDouble(left) + Convert.ToDouble(right);
             throw new Exception($"Cannot add {left} and {right}");
         }
 
@@ -339,8 +351,8 @@ namespace DialogLang
         {
             if (left is int li && right is int ri)
                 return li - ri;
-            if (left is float || right is float)
-                return Convert.ToSingle(left) - Convert.ToSingle(right);
+            if (left is float || right is float || left is double || right is double)
+                return Convert.ToDouble(left) - Convert.ToDouble(right);
             throw new Exception($"Cannot subtract {right} from {left}");
         }
 
@@ -351,8 +363,8 @@ namespace DialogLang
         {
             if (left is int li && right is int ri)
                 return li * ri;
-            if (left is float || right is float)
-                return Convert.ToSingle(left) * Convert.ToSingle(right);
+            if (left is float || right is float || left is double || right is double)
+                return Convert.ToDouble(left) * Convert.ToDouble(right);
             throw new Exception($"Cannot multiply {left} and {right}");
         }
 
@@ -363,8 +375,8 @@ namespace DialogLang
         {
             if (left is int li && right is int ri)
                 return li / ri;
-            if (left is float || right is float)
-                return Convert.ToSingle(left) / Convert.ToSingle(right);
+            if (left is float || right is float || left is double || right is double)
+                return Convert.ToDouble(left) / Convert.ToDouble(right);
             throw new Exception($"Cannot divide {left} by {right}");
         }
 
@@ -443,27 +455,6 @@ namespace DialogLang
         {
             bool operandBool = operand is bool b ? b : Convert.ToBoolean(operand);
             return !operandBool;
-        }
-
-        /// <summary>
-        /// Internal implementation of input request.
-        /// </summary>
-        private class InputRequest : IInputRequest
-        {
-            private readonly Dictionary<string, object> _variables;
-            
-            public string VariableName { get; }
-
-            public InputRequest(string variableName, Dictionary<string, object> variables)
-            {
-                VariableName = variableName;
-                _variables = variables;
-            }
-
-            public void Set(object value)
-            {
-                _variables[VariableName] = value;
-            }
         }
     }
 }
