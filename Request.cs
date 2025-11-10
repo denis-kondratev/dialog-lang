@@ -45,21 +45,51 @@ namespace DialogLang
     /// <summary>
     /// Represents a request for numeric input.
     /// Syntax: >> variableName as number
+    /// Accepts both integer and floating-point values.
+    /// Integer values (e.g., 21) are stored as int.
+    /// Decimal values (e.g., 21.5) are stored as float.
     /// </summary>
     public sealed class RequestNumber : Request
     {
-        private readonly Action<double> _setter;
+        private readonly Action<object> _setter;
 
-        public RequestNumber(string variableName, Action<double> setter) : base(variableName)
+        public RequestNumber(string variableName, Action<object> setter) : base(variableName)
         {
             _setter = setter;
         }
 
         /// <summary>
         /// Sets the numeric input value and resumes script execution.
+        /// Accepts int, float, or double values.
         /// </summary>
         /// <param name="value">The numeric value to assign to the variable.</param>
         public void Set(double value)
+        {
+            // Convert to int if the value is a whole number, otherwise use float
+            if (Math.Abs(value % 1) < double.Epsilon)
+            {
+                _setter((int)value);
+            }
+            else
+            {
+                _setter((float)value);
+            }
+        }
+
+        /// <summary>
+        /// Sets the numeric input value and resumes script execution.
+        /// </summary>
+        /// <param name="value">The numeric value to assign to the variable.</param>
+        public void Set(int value)
+        {
+            _setter(value);
+        }
+
+        /// <summary>
+        /// Sets the numeric input value and resumes script execution.
+        /// </summary>
+        /// <param name="value">The numeric value to assign to the variable.</param>
+        public void Set(float value)
         {
             _setter(value);
         }

@@ -332,52 +332,69 @@ namespace DialogLang
 
         /// <summary>
         /// Performs addition operation.
+        /// Supports int + int = int, but promotes to float if either operand is float.
+        /// Also supports string concatenation.
         /// </summary>
         private object Add(object left, object right)
         {
             if (left is string || right is string)
                 return left.ToString() + right.ToString();
+            
             if (left is int li && right is int ri)
                 return li + ri;
-            if (left is float || right is float || left is double || right is double)
-                return Convert.ToDouble(left) + Convert.ToDouble(right);
+            
+            if (left is float || right is float)
+                return Convert.ToSingle(left) + Convert.ToSingle(right);
+            
             throw new Exception($"Cannot add {left} and {right}");
         }
 
         /// <summary>
         /// Performs subtraction operation.
+        /// Supports int - int = int, but promotes to float if either operand is float.
         /// </summary>
         private object Subtract(object left, object right)
         {
             if (left is int li && right is int ri)
                 return li - ri;
-            if (left is float || right is float || left is double || right is double)
-                return Convert.ToDouble(left) - Convert.ToDouble(right);
+            
+            if (left is float || right is float)
+                return Convert.ToSingle(left) - Convert.ToSingle(right);
+            
             throw new Exception($"Cannot subtract {right} from {left}");
         }
 
         /// <summary>
         /// Performs multiplication operation.
+        /// Supports int * int = int, but promotes to float if either operand is float.
         /// </summary>
         private object Multiply(object left, object right)
         {
             if (left is int li && right is int ri)
                 return li * ri;
-            if (left is float || right is float || left is double || right is double)
-                return Convert.ToDouble(left) * Convert.ToDouble(right);
+            
+            if (left is float || right is float)
+                return Convert.ToSingle(left) * Convert.ToSingle(right);
+            
             throw new Exception($"Cannot multiply {left} and {right}");
         }
 
         /// <summary>
         /// Performs division operation.
+        /// Always returns float to support proper division (e.g., 3 / 2 = 1.5).
         /// </summary>
         private object Divide(object left, object right)
         {
-            if (left is int li && right is int ri)
-                return li / ri;
-            if (left is float || right is float || left is double || right is double)
-                return Convert.ToDouble(left) / Convert.ToDouble(right);
-            throw new Exception($"Cannot divide {left} by {right}");
+            // Always convert to float for division to get accurate results
+            float leftValue = Convert.ToSingle(left);
+            float rightValue = Convert.ToSingle(right);
+            
+            if (Math.Abs(rightValue) < float.Epsilon)
+            {
+                throw new DivideByZeroException("Division by zero");
+            }
+            
+            return leftValue / rightValue;
         }
 
         /// <summary>
@@ -387,8 +404,14 @@ namespace DialogLang
         {
             if (left is int li && right is int ri)
                 return li == ri;
+            
             if (left is float || right is float)
-                return Math.Abs(Convert.ToSingle(left) - Convert.ToSingle(right)) < 0.0001f;
+            {
+                float leftFloat = Convert.ToSingle(left);
+                float rightFloat = Convert.ToSingle(right);
+                return Math.Abs(leftFloat - rightFloat) < 0.0001f;
+            }
+            
             return left.Equals(right);
         }
 
@@ -399,8 +422,10 @@ namespace DialogLang
         {
             if (left is int li && right is int ri)
                 return li > ri;
+            
             if (left is float || right is float)
                 return Convert.ToSingle(left) > Convert.ToSingle(right);
+            
             throw new Exception($"Cannot compare {left} and {right}");
         }
 

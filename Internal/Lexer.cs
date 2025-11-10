@@ -99,6 +99,8 @@ namespace DialogLang
 
         /// <summary>
         /// Reads a number from the current position.
+        /// Whole numbers (e.g., 123) are parsed as int.
+        /// Numbers with a decimal point (e.g., 1.5) are parsed as float.
         /// </summary>
         private Token Number()
         {
@@ -112,12 +114,14 @@ namespace DialogLang
                 Advance();
             }
 
-            if (result.ToString().Contains("."))
+            string numberStr = result.ToString();
+            
+            if (numberStr.Contains("."))
             {
-                return new Token(TokenType.Number, startLine, startColumn, float.Parse(result.ToString(), CultureInfo.InvariantCulture));
+                return new Token(TokenType.Number, startLine, startColumn, float.Parse(numberStr, CultureInfo.InvariantCulture));
             }
             
-            return new Token(TokenType.Number, startLine, startColumn, int.Parse(result.ToString(), CultureInfo.InvariantCulture));
+            return new Token(TokenType.Number, startLine, startColumn, int.Parse(numberStr, CultureInfo.InvariantCulture));
         }
 
         /// <summary>
