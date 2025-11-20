@@ -2,7 +2,7 @@
 
 A simple language for creating game dialogs. Write dialogs as plain text with a bit of logic, and the interpreter does the rest.
 
-The language seamlessly integrates with C# and works great in Unity and Godot with Mono.
+The language seamlessly integrates with C# and works great in Unity and Godot with Mono. You can follow the language development progress on the [project board](https://github.com/users/denis-kondratev/projects/2).
 
 ![Game Dialog Script Language](game-dialog-script-language.png)
 
