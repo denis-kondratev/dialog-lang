@@ -21,11 +21,11 @@ namespace BitPatch.DialogLang
 
         /// <summary>
         /// Executes a Game Dialog Script source code from a TextReader (streaming mode).
-        /// Yields output values from << statements.
+        /// Yields runtime items from << statements.
         /// </summary>
         /// <param name="reader">The TextReader to read source code from.</param>
-        /// <returns>Enumerable of output values.</returns>
-        public IEnumerable<object> Execute(TextReader reader)
+        /// <returns>Enumerable of runtime items.</returns>
+        public IEnumerable<RuntimeItem> Execute(TextReader reader)
         {
             if (reader == null)
             {
@@ -46,11 +46,11 @@ namespace BitPatch.DialogLang
 
         /// <summary>
         /// Executes a Game Dialog Script source code from a string.
-        /// Yields output values from << statements.
+        /// Yields runtime items from << statements.
         /// </summary>
         /// <param name="source">The source code to execute.</param>
-        /// <returns>Enumerable of output values.</returns>
-        public IEnumerable<object> Execute(string source)
+        /// <returns>Enumerable of runtime items.</returns>
+        public IEnumerable<RuntimeItem> Execute(string source)
         {
             if (source is null)
             {
@@ -64,38 +64,17 @@ namespace BitPatch.DialogLang
         }
 
         /// <summary>
-        /// Gets the value of a variable.
-        /// </summary>
-        public object? GetVariable(string name)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-            return _interpreter.GetVariable(name);
-        }
-
-        /// <summary>
         /// Gets all variables as a sequence of name-value pairs.
         /// </summary>
-        public IEnumerable<(string name, object value)> Variables
+        public IEnumerable<(string name, RuntimeItem value)> Variables
         {
             get
             {
                 foreach (var kvp in _interpreter.Variables)
                 {
-                    yield return (kvp.Key, kvp.Value.ToObject());
+                    yield return (kvp.Key, kvp.Value);
                 }
             }
-        }
-
-        /// <summary>
-        /// Clears all variables.
-        /// </summary>
-        public void Clear()
-        {
-            _interpreter.Clear();
         }
     }
 }

@@ -11,7 +11,7 @@ namespace BitPatch.DialogLang
         /// <summary>
         /// Dictionary to store variable names and their runtime values.
         /// </summary>
-        private readonly Dictionary<string, RuntimeValue> _variables;
+        private readonly Dictionary<string, RuntimeItem> _variables;
 
         /// <summary>
         /// Maximum allowed iterations for loops to prevent infinite loops.
@@ -25,21 +25,21 @@ namespace BitPatch.DialogLang
         public Interpreter(int maxLoopIterations = 100)
         {
             MaxLoopIterations = maxLoopIterations;
-            _variables = new Dictionary<string, RuntimeValue>();
+            _variables = new Dictionary<string, RuntimeItem>();
         }
 
         /// <summary>
         /// Gets all variables in the current scope.
         /// </summary>
-        public IReadOnlyDictionary<string, RuntimeValue> Variables => _variables;
+        public IReadOnlyDictionary<string, RuntimeItem> Variables => _variables;
 
         /// <summary>
         /// Executes statements one by one as they arrive (streaming), yielding output values.
         /// </summary>
         /// <param name="statements">The enumerable of statements to execute.</param>
-        /// <returns>Enumerable of output values.</returns>
+        /// <returns>Enumerable of runtime items.</returns>
         /// <exception cref="NotSupportedException">Thrown when the statement type is not supported.</exception>
-        public IEnumerable<object> Execute(IEnumerable<Ast.Statement> statements)
+        public IEnumerable<RuntimeItem> Execute(IEnumerable<Ast.Statement> statements)
         {
             var blockStack = new Stack<Ast.Statement>();
             var enumerator = statements.GetEnumerator();
@@ -52,7 +52,7 @@ namespace BitPatch.DialogLang
                 switch (statement)
                 {
                     case Ast.Output output:
-                        yield return EvaluateExpression(output.Expression).ToObject();
+                        yield return EvaluateExpression(output.Expression);
                         break;
                     case Ast.Assign assign:
                         ExecuteAssignment(assign);
@@ -79,15 +79,6 @@ namespace BitPatch.DialogLang
                         throw new NotSupportedException($"Unsupported statement type: {statement.GetType().Name}");
                 }
             }
-        }
-
-        /// <summary>
-        /// Executes a program (legacy method for compatibility).
-        /// </summary>
-        /// <param name="program">The program to execute.</param>
-        public IEnumerable<object> Execute(Ast.Program program)
-        {
-            return Execute(program.Statements);
         }
 
         /// <summary>
@@ -130,9 +121,9 @@ namespace BitPatch.DialogLang
         /// Evaluates an expression and returns its value.
         /// </summary>
         /// <param name="expression">The expression to evaluate.</param>
-        /// <returns>The evaluated runtime value.</returns>
+        /// <returns>The evaluated runtime item.</returns>
         /// <exception cref="NotSupportedException">Thrown when the expression type is not supported.</exception>
-        private RuntimeValue EvaluateExpression(Ast.Expression expression)
+        private RuntimeItem EvaluateExpression(Ast.Expression expression)
         {
             return expression switch
             {
@@ -332,9 +323,9 @@ namespace BitPatch.DialogLang
         /// Evaluates addition operation (+).
         /// </summary>
         /// <param name="op">The addition operation node.</param>
-        /// <returns>The evaluated runtime value.</returns>
+        /// <returns>The evaluated runtime item.</returns>
         /// <exception cref="ScriptException">Thrown when the values cannot be added.</exception>
-        private RuntimeValue EvaluateAddOp(Ast.AddOp op)
+        private RuntimeItem EvaluateAddOp(Ast.AddOp op)
         {
             var left = EvaluateExpression(op.Left);
             var right = EvaluateExpression(op.Right);
@@ -514,12 +505,12 @@ namespace BitPatch.DialogLang
         }
 
         /// <summary>
-        /// Checks if two runtime values are equal.
+        /// Checks if two runtime items are equal.
         /// </summary>
-        /// <param name="left">The left runtime value.</param>
-        /// <param name="right">The right runtime value.</param>
+        /// <param name="left">The left runtime item.</param>
+        /// <param name="right">The right runtime item.</param>
         /// <returns>True if the values are equal; otherwise, false.</returns>
-        private bool AreEqual(RuntimeValue left, RuntimeValue right)
+        private bool AreEqual(RuntimeItem left, RuntimeItem right)
         {
             return (left, right) switch
             {
@@ -537,9 +528,9 @@ namespace BitPatch.DialogLang
         /// Evaluates a variable and returns its value.
         /// </summary>
         /// <param name="variable">The variable node.</param>
-        /// <returns>The runtime value of the variable.</returns>
+        /// <returns>The runtime item of the variable.</returns>
         /// <exception cref="ScriptException">Thrown when the variable is not defined.</exception>
-        private RuntimeValue EvaluateVariable(Ast.Variable variable)
+        private RuntimeItem EvaluateVariable(Ast.Variable variable)
         {
             if (_variables.TryGetValue(variable.Name, out var value))
             {
@@ -565,24 +556,6 @@ namespace BitPatch.DialogLang
             }
 
             throw new ScriptException($"Expected boolean expression, got {value.GetType().Name}", expression.Location);
-        }
-
-        /// <summary>
-        /// Gets the value of a variable.
-        /// </summary>
-        /// <param name="name">The name of the variable.</param>
-        /// <returns>The value of the variable if it exists; otherwise, null.</returns>
-        public object? GetVariable(string name)
-        {
-            return _variables.TryGetValue(name, out var value) ? value.ToObject() : null;
-        }
-
-        /// <summary>
-        /// Clears all variables.
-        /// </summary>
-        public void Clear()
-        {
-            _variables.Clear();
         }
     }
 }

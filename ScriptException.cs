@@ -41,12 +41,4 @@ namespace BitPatch.DialogLang
         {
         }
     }
-
-    public class TypeMismatchException : ScriptException
-    {
-        internal TypeMismatchException(Type expected, RuntimeValue actual, Location location)
-            : base($"Wrong type, got {actual.GetType().Name} instead of {expected.Name}", location)
-        {
-        }
-    }
 }
