@@ -26,8 +26,8 @@ namespace BitPatch.DialogLang
         {
         }
 
-        internal InvalidSyntaxException(int line, int column)
-            : this(new Location(line, column))
+        internal InvalidSyntaxException(Source source, int line, int column)
+            : this(new Location(source, line, column))
         {
         }
 
@@ -36,8 +36,8 @@ namespace BitPatch.DialogLang
         {
         }
 
-        internal InvalidSyntaxException(string message, int line, int column)
-            : base("Invalid syntax: " + message, new Location(line, column))
+        internal InvalidSyntaxException(string message, Source source, int line, int column)
+            : this(message, new Location(source, line, column))
         {
         }
     }

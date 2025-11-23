@@ -1,7 +1,7 @@
 namespace BitPatch.DialogLang
 {
     /// <summary>
-    /// Token types for the Game Dialog Script language
+    /// Token types for the Game Dialog Script language.
     /// </summary>
     internal enum TokenType
     {
@@ -55,7 +55,7 @@ namespace BitPatch.DialogLang
     }
 
     /// <summary>
-    /// Represents a single token in the source code
+    /// Represents a single token in the source code.
     /// </summary>
     internal class Token
     {
@@ -63,13 +63,13 @@ namespace BitPatch.DialogLang
         public string Value { get; }
         public Location Location { get; }
 
-        public Token(TokenType type, string value, int line, int initial, int final)
-            : this(type, value, new Location(line, initial, final))
+        public Token(TokenType type, string value, Source source, int line, int initial, int final)
+            : this(type, value, new Location(source, line, initial, final))
         {
         }
 
-        public Token(TokenType type, string value, int line, int position)
-            : this(type, value, new Location(line, position))
+        public Token(TokenType type, string value, Source source, int line, int position)
+            : this(type, value, new Location(source, line, position))
         {
         }
 
@@ -85,34 +85,34 @@ namespace BitPatch.DialogLang
             return Type is TokenType.EndOfFile;
         }
 
-        public bool IsEndOfStatement()
-        {
-            return Type is TokenType.Newline or TokenType.EndOfFile;
-        }
-
         public static Token EndOfFile(Location location)
         {
             return new Token(TokenType.EndOfFile, string.Empty, location);
         }
 
-        public static Token EndOfFile(int line, int column)
+        public static Token EndOfFile(Source source, int line, int column)
         {
-            return EndOfFile(new Location(line, column));
+            return EndOfFile(new Location(source, line, column));
         }
 
-        public static Token NewLine(int line, int column)
+        public static Token Empty()
         {
-            return new Token(TokenType.Newline, string.Empty, new Location(line, column));
+            return new Token(TokenType.EndOfFile, string.Empty, new Location(Source.Empty(), 0, 0));
         }
 
-        public static Token Indent(int line, int column)
+        public static Token NewLine(Location location)
         {
-            return new Token(TokenType.Indent, string.Empty, line, column);
+            return new Token(TokenType.Newline, string.Empty, location);
         }
 
-        public static Token Dedent(int line, int column)
+        public static Token Indent(Location location)
         {
-            return new Token(TokenType.Dedent, string.Empty, line, column);
+            return new Token(TokenType.Indent, string.Empty, location);
+        }
+
+        public static Token Dedent(Location location)
+        {
+            return new Token(TokenType.Dedent, string.Empty, location);
         }
 
         public override string ToString()
