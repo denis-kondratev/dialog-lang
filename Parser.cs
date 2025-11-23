@@ -16,8 +16,8 @@ namespace BitPatch.DialogLang
         public Parser(IEnumerable<Token> tokens)
         {
             _tokens = tokens.GetEnumerator();
-            _current = new Token(TokenType.EndOfFile, string.Empty, 0, 0);
-            _next = new Token(TokenType.EndOfFile, string.Empty, 0, 0);
+            _current = Token.Empty();
+            _next = Token.Empty();
 
             // Initialize first two tokens.
             MoveNext();

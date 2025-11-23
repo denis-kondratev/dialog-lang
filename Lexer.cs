@@ -8,17 +8,22 @@ namespace BitPatch.DialogLang
     /// <summary>
     /// Lexical analyzer that converts source code into tokens.
     /// </summary>
-    internal class Lexer
+    internal class Lexer : IDisposable
     {
         /// <summary>
-        /// The reader to read source code from.
+        /// The source code input.
+        /// </summary>
+        private readonly Source _source;
+
+        /// <summary>
+        /// The TextReader for reading characters from the source.
         /// </summary>
         private readonly TextReader _reader;
 
         /// <summary>
         /// The buffer to accumulate characters for the current token.
         /// </summary>
-        private readonly StringBuilder _buffer;
+        private readonly StringBuilder _buffer = new();
 
         /// <summary>
         /// The current character being processed. If -1, end of file is reached.
@@ -38,7 +43,7 @@ namespace BitPatch.DialogLang
         /// <summary>
         /// Stack to keep track of indentation levels.
         /// </summary>
-        private readonly Stack<int> _indents;
+        private readonly Stack<int> _indents = new();
 
         /// <summary>
         /// Defines the indentation style: ' ' for spaces, '\t' for tabs, or '\0' if undefined.
@@ -50,17 +55,30 @@ namespace BitPatch.DialogLang
         /// </summary>
         private bool _atLineStart;
 
-        public Lexer(TextReader reader)
+        /// <summary>
+        /// Gets the current location in the source code.
+        /// </summary>
+        private Location CurrentLocation => new(_source, _line, _column);
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Lexer"/> class.
+        /// </summary>
+        public Lexer(Source source)
         {
-            _reader = reader ?? throw new ArgumentNullException(nameof(reader));
-            _buffer = new StringBuilder();
+            _source = source;
+            _reader = _source.CreateReader();
             _line = 1;
             _column = 1;
             _current = _reader.Read();
-            _indents = new Stack<int>();
+            _indents.Clear();
             _indents.Push(0);
             _indentStyle = '\0';
             _atLineStart = true;
+        }
+
+        public void Dispose()
+        {
+            _reader.Dispose();
         }
 
         /// <summary>
@@ -81,8 +99,8 @@ namespace BitPatch.DialogLang
 
                     var identToken = tokenType switch
                     {
-                        TokenType.Indent => Token.Indent(_line, _column),
-                        TokenType.Dedent => Token.Dedent(_line, _column),
+                        TokenType.Indent => Token.Indent(CurrentLocation),
+                        TokenType.Dedent => Token.Dedent(CurrentLocation),
                         _ => throw new InvalidOperationException("Unexpected token type from ReadIndentation")
                     };
 
@@ -100,17 +118,17 @@ namespace BitPatch.DialogLang
 
             if (!_atLineStart)
             {
-                yield return Token.NewLine(_line, _column);
+                yield return Token.NewLine(CurrentLocation);
             }
 
             // Generate Dedent tokens for all remaining indentation levels.
             while (_indents.Count > 1)
             {
                 _indents.Pop();
-                yield return Token.Dedent(_line, _column);
+                yield return Token.Dedent(CurrentLocation);
             }
 
-            yield return Token.EndOfFile(_line, _column);
+            yield return Token.EndOfFile(CurrentLocation);
         }
 
         /// <summary>
@@ -138,7 +156,7 @@ namespace BitPatch.DialogLang
 
             if (identLevel != currentLevel)
             {
-                throw new InvalidSyntaxException("Inconsistent indentation", _line, _column);
+                throw new InvalidSyntaxException("Inconsistent indentation", CurrentLocation);
             }
 
             return (TokenType.Dedent, count);
@@ -178,7 +196,7 @@ namespace BitPatch.DialogLang
                     }
                     else if (ch != _indentStyle)
                     {
-                        throw new InvalidSyntaxException("Inconsistent use of tabs and spaces for indentation", _line, _column);
+                        throw new InvalidSyntaxException("Inconsistent use of tabs and spaces for indentation", CurrentLocation);
                     }
 
                     identLevel++;
@@ -231,7 +249,7 @@ namespace BitPatch.DialogLang
                 ')' => ReadSingleCharToken(TokenType.RightParen, ")"),
 
                 // Unknown character
-                _ => throw new InvalidSyntaxException("Unexpected symbol", _line, _column),
+                _ => throw new InvalidSyntaxException("Unexpected symbol", CurrentLocation),
             };
         }
 
@@ -248,16 +266,16 @@ namespace BitPatch.DialogLang
             if (_current is '<')
             {
                 MoveNextChar(); // consume second '<'
-                return new Token(TokenType.Output, "<<", line, initial, _column);
+                return new Token(TokenType.Output, "<<", _source, line, initial, _column);
             }
 
             if (_current is '=')
             {
                 MoveNextChar(); // consume '='
-                return new Token(TokenType.LessOrEqual, "<=", line, initial, _column);
+                return new Token(TokenType.LessOrEqual, "<=", _source, line, initial, _column);
             }
 
-            return new Token(TokenType.LessThan, "<", line, initial, _column);
+            return new Token(TokenType.LessThan, "<", _source, line, initial, _column);
         }
 
         /// <summary>
@@ -273,10 +291,10 @@ namespace BitPatch.DialogLang
             if (_current is '=')
             {
                 MoveNextChar(); // consume '='
-                return new Token(TokenType.GreaterOrEqual, ">=", line, initial, _column);
+                return new Token(TokenType.GreaterOrEqual, ">=", _source, line, initial, _column);
             }
 
-            return new Token(TokenType.GreaterThan, ">", line, initial, _column);
+            return new Token(TokenType.GreaterThan, ">", _source, line, initial, _column);
         }
 
         /// <summary>
@@ -292,10 +310,10 @@ namespace BitPatch.DialogLang
             if (_current is '=')
             {
                 MoveNextChar(); // consume second '='
-                return new Token(TokenType.Equal, "==", line, initial, _column);
+                return new Token(TokenType.Equal, "==", _source, line, initial, _column);
             }
 
-            return new Token(TokenType.Assign, "=", line, initial, _column);
+            return new Token(TokenType.Assign, "=", _source, line, initial, _column);
         }
 
         /// <summary>
@@ -311,10 +329,10 @@ namespace BitPatch.DialogLang
             if (_current is '=')
             {
                 MoveNextChar(); // consume '='
-                return new Token(TokenType.NotEqual, "!=", line, initial, _column);
+                return new Token(TokenType.NotEqual, "!=", _source, line, initial, _column);
             }
 
-            throw new InvalidSyntaxException("Unexpected symbol '!'", line, initial);
+            throw new InvalidSyntaxException("Unexpected symbol '!'", _source, line, initial);
         }
 
         /// <summary>
@@ -325,7 +343,7 @@ namespace BitPatch.DialogLang
             var line = _line;
             var initial = _column;
             MoveNextChar();
-            return new Token(type, value, line, initial, _column);
+            return new Token(type, value, _source, line, initial, _column);
         }
 
         /// <summary>
@@ -354,7 +372,7 @@ namespace BitPatch.DialogLang
             }
 
             var tokenType = isFloat ? TokenType.Float : TokenType.Integer;
-            return new Token(tokenType, _buffer.ToString(), line, initial, _column);
+            return new Token(tokenType, _buffer.ToString(), _source, line, initial, _column);
 
             void ReadDigits()
             {
@@ -381,7 +399,7 @@ namespace BitPatch.DialogLang
                 MoveNextChar();
             }
 
-            var location = new Location(line, initial, _column);
+            var location = new Location(_source, line, initial, _column);
             var value = _buffer.ToString();
 
             // Check for keywords
@@ -423,7 +441,7 @@ namespace BitPatch.DialogLang
 
                     if (_current == -1)
                     {
-                        throw new InvalidSyntaxException(_line, _column);
+                        throw new InvalidSyntaxException(CurrentLocation);
                     }
 
                     var escapeChar = (char)_current;
@@ -434,14 +452,14 @@ namespace BitPatch.DialogLang
                         'r' => '\r',
                         '\\' => '\\',
                         '"' => '"',
-                        _ => throw new InvalidSyntaxException($"Invalid escape sequence: \\{escapeChar}", _line, _column)
+                        _ => throw new InvalidSyntaxException($"Invalid escape sequence: \\{escapeChar}", CurrentLocation)
                     });
 
                     MoveNextChar();
                 }
                 else if (_current.IsNewLine())
                 {
-                    throw new InvalidSyntaxException("String is not closed with a quote", _line, _column);
+                    throw new InvalidSyntaxException("String is not closed with a quote", CurrentLocation);
                 }
                 else
                 {
@@ -452,13 +470,13 @@ namespace BitPatch.DialogLang
 
             if (_current == -1)
             {
-                throw new InvalidSyntaxException("Unterminated string literal", _line, _column);
+                throw new InvalidSyntaxException("Unterminated string literal", CurrentLocation);
             }
 
             // Skip closing quote
             MoveNextChar();
 
-            return new Token(TokenType.String, _buffer.ToString(), line, initial, _column);
+            return new Token(TokenType.String, _buffer.ToString(), _source, line, initial, _column);
         }
 
         /// <summary>
@@ -474,7 +492,7 @@ namespace BitPatch.DialogLang
             MoveNextChar();
 
             _atLineStart = true; // Next token will handle indentation
-            return Token.NewLine(_line, _column);
+            return Token.NewLine(CurrentLocation);
         }
 
         /// <summary>
@@ -492,7 +510,7 @@ namespace BitPatch.DialogLang
             while (!_current.IsNewLine())
             {
                 MoveNextChar();
-            }            
+            }
         }
 
         /// <summary>

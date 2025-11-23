@@ -33,14 +33,6 @@ namespace BitPatch.DialogLang
         }
 
         /// <summary>
-        /// Returns a new Location that is immediately after the current one.
-        /// </summary>
-        public static Location After(this Location location)
-        {
-            return new Location(location.Line, location.Final, location.Final + 1);
-        }
-
-        /// <summary>
         /// Asserts that the expression is a boolean expression.
         /// </summary>
         public static Ast.Expression AssertBoolean(this Ast.Expression expression)
