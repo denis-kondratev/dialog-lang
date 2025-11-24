@@ -79,7 +79,7 @@ namespace BitPatch.DialogLang
         }
 
         /// <summary>
-        /// Parses an output statement: << expression.
+        /// Parses an output statement: &lt;&lt; expression.
         /// </summary>
         private Ast.Output ParseOutput()
         {
@@ -144,7 +144,7 @@ namespace BitPatch.DialogLang
 
             var body = ParseBlock();
 
-            return new Ast.While(condition.AssertBoolean(), body, startLocation | condition.Location);
+            return new Ast.While(condition, body, startLocation | condition.Location);
         }
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace BitPatch.DialogLang
             }
 
             var thenBlock = ParseBlock();
-            return new Ast.ConditionalBlock(condition.AssertBoolean(), thenBlock, startLocation | condition.Location);
+            return new Ast.ConditionalBlock(condition, thenBlock, startLocation | condition.Location);
         }
 
         /// <summary>
@@ -222,8 +222,8 @@ namespace BitPatch.DialogLang
         }
 
         /// <summary>
-        /// Parses an expression with operator precedence
-        /// Precedence (low to high): or, xor, and, comparison (==, !=, <, >, <=, >=), not, primary
+        /// Parses an expression with operator precedence.
+        /// Precedence (low to high): or, xor, and, comparison (==, !=, &lt;, &gt;, &lt;=, &gt;=), not, primary.
         /// </summary>
         private Ast.Expression ParseExpression()
         {
@@ -241,7 +241,7 @@ namespace BitPatch.DialogLang
             {
                 MoveNext(); // consume 'or'
                 var right = ParseXorExpression();
-                left = new Ast.OrOp(left.AssertBoolean(), right.AssertBoolean(), left.Location | right.Location);
+                left = new Ast.OrOp(left, right, left.Location | right.Location);
             }
 
             return left;
@@ -258,7 +258,7 @@ namespace BitPatch.DialogLang
             {
                 MoveNext(); // consume 'xor'
                 var right = ParseAndExpression();
-                left = new Ast.XorOp(left.AssertBoolean(), right.AssertBoolean(), left.Location | right.Location);
+                left = new Ast.XorOp(left, right, left.Location | right.Location);
             }
 
             return left;
@@ -275,14 +275,14 @@ namespace BitPatch.DialogLang
             {
                 MoveNext(); // consume 'and'
                 var right = ParseComparisonExpression();
-                left = new Ast.AndOp(left.AssertBoolean(), right.AssertBoolean(), left.Location | right.Location);
+                left = new Ast.AndOp(left, right, left.Location | right.Location);
             }
 
             return left;
         }
 
         /// <summary>
-        /// Parses comparison expression (==, !=, <, >, <=, >=)
+        /// Parses comparison expressions such as ==, !=, &lt;, &gt;, &lt;=, &gt;=.
         /// </summary>
         private Ast.Expression ParseComparisonExpression()
         {
@@ -292,7 +292,7 @@ namespace BitPatch.DialogLang
                                  or TokenType.LessOrEqual or TokenType.Equal or TokenType.NotEqual)
             {
                 var opType = _current.Type;
-                MoveNext(); // consume comparison operator
+                MoveNext(); // Consume comparison operator
                 var right = ParseNotExpression();
                 var position = left.Location | right.Location;
 
@@ -388,7 +388,7 @@ namespace BitPatch.DialogLang
                 var startLocation = _current.Location;
                 MoveNext(); // consume 'not'
                 var operand = ParseNotExpression(); // right-associative
-                return new Ast.NotOp(operand.AssertBoolean(), startLocation | operand.Location);
+                return new Ast.NotOp(operand, startLocation | operand.Location);
             }
 
             return ParseAdditiveExpression();
@@ -415,7 +415,7 @@ namespace BitPatch.DialogLang
         private Ast.Expression ParsePrimitive()
         {
             var token = _current;
-            
+
             MoveNext();
 
             return token.Type switch
@@ -436,7 +436,7 @@ namespace BitPatch.DialogLang
         private Ast.Expression ParseParenthesizedExpression()
         {
             var leftParen = Consume(TokenType.LeftParen); // Expect '('
-            
+
             var expression = ParseExpression();
 
             if (_current.Type is not TokenType.RightParen)

@@ -285,7 +285,7 @@ namespace BitPatch.DialogLang
         }
 
         /// <summary>
-        /// Reads operators starting with '<': '<<', '<=', or '<'.
+        /// Reads operators starting with '&lt;': '&lt;&lt;', '&lt;=', or '&lt;'.
         /// </summary>
         private Token ReadFromLessThanSign()
         {
@@ -309,7 +309,7 @@ namespace BitPatch.DialogLang
         }
 
         /// <summary>
-        /// Reads operators starting with '>': '>=', or '>'.
+        /// Reads operators starting with '&gt;': '&gt;=', or '&gt;'.
         /// </summary>
         private Token ReadFromGreaterThanSign()
         {

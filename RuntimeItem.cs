@@ -1,28 +1,71 @@
+using System;
+using System.Collections.Generic;
+
 namespace BitPatch.DialogLang
 {
     /// <summary>
     /// Base type for all runtime items in the interpreter.
     /// Provides a foundation for extensibility with future types like None, List, Index, etc.
     /// </summary>
-    public abstract record RuntimeItem;
+    public abstract record RuntimeItem
+    {
+        /// <summary>
+        /// Gets the display name of the item type.
+        /// </summary>
+        public abstract string GetTypeName();
+
+        /// <summary>
+        /// The display name for runtime item types.
+        /// </summary>
+        public static string DisplayName => "item";
+
+        /// <summary>
+        /// Mapping of runtime item types to their display names.
+        /// </summary>
+        private static readonly Dictionary<Type, string> TypeDisplayNames = new()
+        {
+            { typeof(RuntimeItem), RuntimeItem.DisplayName },
+            { typeof(RuntimeValue), RuntimeValue.DisplayName },
+            { typeof(RuntimeNumber), RuntimeNumber.DisplayName },
+            { typeof(RuntimeInteger), RuntimeInteger.DisplayName },
+            { typeof(RuntimeFloat), RuntimeFloat.DisplayName },
+            { typeof(RuntimeString), RuntimeString.DisplayName },
+            { typeof(RuntimeBoolean), RuntimeBoolean.DisplayName },
+        };
+
+        /// <summary>
+        /// Gets the display name for a specific runtime item type.
+        /// </summary>
+        public static string GetDisplayName<T>() where T : RuntimeItem
+        {
+            return TypeDisplayNames.TryGetValue(typeof(T), out var displayName)
+                ? displayName
+                : throw new NotSupportedException($"Type {typeof(T).Name} is not a supported RuntimeItem type.");
+        }
+    }
 
     /// <summary>
     /// Represents a runtime value in the interpreter.
     /// This is a discriminated union of all possible value types.
     /// </summary>
-    public abstract record Value : RuntimeItem
+    public abstract record RuntimeValue : RuntimeItem
     {
         /// <summary>
         /// Gets the underlying value as an object.
         /// </summary>
         /// <returns>The value as an object.</returns>
         public abstract object GetValue();
+
+        /// <summary>
+        /// The display name for value types.
+        /// </summary>
+        public new static string DisplayName => "value";
     }
 
     /// <summary>
     /// Base class for numeric runtime values.
     /// </summary>
-    public abstract record Number : Value
+    public abstract record RuntimeNumber : RuntimeValue
     {
         /// <summary>
         /// Gets a value indicating whether this number represents a nil/zero value.
@@ -33,12 +76,17 @@ namespace BitPatch.DialogLang
         /// Gets the floating-point representation of this number.
         /// </summary>
         public abstract float FloatValue { get; }
+
+        /// <summary>
+        /// The display name for number types.
+        /// </summary>
+        public new static string DisplayName => "number";
     }
 
     /// <summary>
     /// Integer runtime value.
     /// </summary>
-    public sealed record Integer(int Value) : Number
+    public sealed record RuntimeInteger(int Value) : RuntimeNumber
     {
         /// <summary>
         /// Gets a value indicating whether this integer is zero.
@@ -56,6 +104,16 @@ namespace BitPatch.DialogLang
         public override object GetValue() => Value;
 
         /// <summary>
+        /// Gets the display name of the item type.
+        /// </summary>
+        public override string GetTypeName() => DisplayName;
+
+        /// <summary>
+        /// The display name for integer types.
+        /// </summary>
+        public new static string DisplayName => "integer";
+
+        /// <summary>
         /// Returns the string representation of this integer.
         /// </summary>
         public override string ToString() => Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -64,7 +122,7 @@ namespace BitPatch.DialogLang
     /// <summary>
     /// Float runtime value.
     /// </summary>
-    public sealed record Float(float Value) : Number
+    public sealed record RuntimeFloat(float Value) : RuntimeNumber
     {
         /// <summary>
         /// Gets a value indicating whether this float is zero.
@@ -82,6 +140,16 @@ namespace BitPatch.DialogLang
         public override object GetValue() => Value;
 
         /// <summary>
+        /// Gets the display name of the item type.
+        /// </summary>
+        public override string GetTypeName() => DisplayName;
+
+        /// <summary>
+        /// The display name for float types.
+        /// </summary>
+        public new static string DisplayName => "float";
+
+        /// <summary>
         /// Returns the string representation of this float.
         /// </summary>
         public override string ToString() => Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -90,12 +158,22 @@ namespace BitPatch.DialogLang
     /// <summary>
     /// String runtime value.
     /// </summary>
-    public sealed record String(string Value) : Value
+    public sealed record RuntimeString(string Value) : RuntimeValue
     {
         /// <summary>
         /// Returns the string value itself.
         /// </summary>
         public override object GetValue() => Value;
+
+        /// <summary>
+        /// Gets the display name of the item type.
+        /// </summary>
+        public override string GetTypeName() => DisplayName;
+
+        /// <summary>
+        /// The display name for string types.
+        /// </summary>
+        public new static string DisplayName => "string";
 
         /// <summary>
         /// Returns the string representation of this string.
@@ -106,12 +184,22 @@ namespace BitPatch.DialogLang
     /// <summary>
     /// Boolean runtime value.
     /// </summary>
-    public sealed record Boolean(bool Value) : Value
+    public sealed record RuntimeBoolean(bool Value) : RuntimeValue
     {
         /// <summary>
         /// Returns the boolean value itself.
         /// </summary>
         public override object GetValue() => Value;
+
+        /// <summary>
+        /// Gets the display name of the item type.
+        /// </summary>
+        public override string GetTypeName() => DisplayName;
+
+        /// <summary>
+        /// The display name for boolean types.
+        /// </summary>
+        public new static string DisplayName => "boolean";
 
         /// <summary>
         /// Returns the string representation of this boolean.

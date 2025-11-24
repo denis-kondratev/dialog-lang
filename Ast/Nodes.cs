@@ -8,11 +8,6 @@ namespace BitPatch.DialogLang.Ast
     internal abstract record Node(Location Location) {}
 
     /// <summary>
-    /// Indicates that the expression may return a boolean value.
-    /// </summary>
-    internal interface IBoolean { }
-
-    /// <summary>
     /// Base class for all statements (executed, do not return values).
     /// </summary>
     internal abstract record Statement(Location Location) : Node(Location);
@@ -55,12 +50,12 @@ namespace BitPatch.DialogLang.Ast
     /// <summary>
     /// Node representing a boolean literal.
     /// </summary>
-    internal sealed record Boolean(bool Value, Location Location) : Expression(Location), IBoolean;
+    internal sealed record Boolean(bool Value, Location Location) : Expression(Location);
 
     /// <summary>
     /// Node representing a variable reference.
     /// </summary>
-    internal sealed record Variable(string Name, Location Location) : Expression(Location), IBoolean;
+    internal sealed record Variable(string Name, Location Location) : Expression(Location);
 
     /// <summary>
     /// Node representing an identifier (variable name).
@@ -72,49 +67,49 @@ namespace BitPatch.DialogLang.Ast
     /// <summary>
     /// Node representing logical AND operation (a and b).
     /// </summary>
-    internal sealed record AndOp(Expression Left, Expression Right, Location Location) : Expression(Location), IBoolean;
+    internal sealed record AndOp(Expression Left, Expression Right, Location Location) : Expression(Location);
 
     /// <summary>
     /// Node representing logical OR operation (a or b).
     /// </summary>
-    internal sealed record OrOp(Expression Left, Expression Right, Location Location) : Expression(Location), IBoolean;
+    internal sealed record OrOp(Expression Left, Expression Right, Location Location) : Expression(Location);
 
     /// <summary>
     /// Node representing logical XOR operation (a xor b).
     /// </summary>
-    internal sealed record XorOp(Expression Left, Expression Right, Location Location) : Expression(Location), IBoolean;
+    internal sealed record XorOp(Expression Left, Expression Right, Location Location) : Expression(Location);
 
     // Comparison Operations
 
     /// <summary>
     /// Node representing greater than comparison (a > b).
     /// </summary>
-    internal sealed record GreaterThanOp(Expression Left, Expression Right, Location Location) : Expression(Location), IBoolean;
+    internal sealed record GreaterThanOp(Expression Left, Expression Right, Location Location) : Expression(Location);
 
     /// <summary>
-    /// Node representing less than comparison (a < b).
+    /// Node representing less than comparison (a &lt; b).
     /// </summary>
-    internal sealed record LessThanOp(Expression Left, Expression Right, Location Location) : Expression(Location), IBoolean;
+    internal sealed record LessThanOp(Expression Left, Expression Right, Location Location) : Expression(Location);
 
     /// <summary>
     /// Node representing greater than or equal comparison (a >= b).
     /// </summary>
-    internal sealed record GreaterOrEqualOp(Expression Left, Expression Right, Location Location) : Expression(Location), IBoolean;
+    internal sealed record GreaterOrEqualOp(Expression Left, Expression Right, Location Location) : Expression(Location);
 
     /// <summary>
-    /// Node representing less than or equal comparison (a <= b).
+    /// Node representing less than or equal comparison (a &lt;= b).
     /// </summary>
-    internal sealed record LessOrEqualOp(Expression Left, Expression Right, Location Location) : Expression(Location), IBoolean;
+    internal sealed record LessOrEqualOp(Expression Left, Expression Right, Location Location) : Expression(Location);
 
     /// <summary>
     /// Node representing equality comparison (a == b).
     /// </summary>
-    internal sealed record EqualOp(Expression Left, Expression Right, Location Location) : Expression(Location), IBoolean;
+    internal sealed record EqualOp(Expression Left, Expression Right, Location Location) : Expression(Location);
 
     /// <summary>
     /// Node representing inequality comparison (a != b).
     /// </summary>
-    internal sealed record NotEqualOp(Expression Left, Expression Right, Location Location) : Expression(Location), IBoolean;
+    internal sealed record NotEqualOp(Expression Left, Expression Right, Location Location) : Expression(Location);
 
     // Arithmetic Operations
 
@@ -148,7 +143,7 @@ namespace BitPatch.DialogLang.Ast
     /// <summary>
     /// Node representing logical NOT operation (not a).
     /// </summary>
-    internal sealed record NotOp(Expression Operand, Location Location) : Expression(Location), IBoolean;
+    internal sealed record NotOp(Expression Operand, Location Location) : Expression(Location);
 
     /// <summary>
     /// Node representing unary negation operation (-a).
@@ -163,7 +158,7 @@ namespace BitPatch.DialogLang.Ast
     internal sealed record Assign(Identifier Identifier, Expression Expression, Location Location) : Statement(Location);
 
     /// <summary>
-    /// Node representing an output statement (<< expression).
+    /// Node representing an output statement (&lt;&lt; expression).
     /// </summary>
     internal sealed record Output(Expression Expression, Location Location) : Statement(Location);
 

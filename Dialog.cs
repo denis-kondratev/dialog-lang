@@ -13,6 +13,9 @@ namespace BitPatch.DialogLang
         /// </summary>
         private readonly Interpreter _interpreter;
 
+        /// <summary>
+        /// Initializes a new instance of the Dialog class.
+        /// </summary>
         public Dialog()
         {
             _interpreter = new Interpreter();
@@ -20,7 +23,7 @@ namespace BitPatch.DialogLang
 
         /// <summary>
         /// Executes a Game Dialog Script source code from a string.
-        /// Yields runtime items from << statements.
+        /// Yields runtime items from &lt;&lt; statements.
         /// </summary>
         /// <param name="inlineSource">The source code to execute.</param>
         /// <returns>Enumerable of runtime items.</returns>
@@ -32,7 +35,7 @@ namespace BitPatch.DialogLang
 
         /// <summary>
         /// Executes a Game Dialog Script file.
-        /// Yields runtime items from << statements.
+        /// Yields runtime items from &lt;&lt; statements.
         /// </summary>
         /// <param name="filePath">The path to the script file to execute.</param>
         /// <returns>Enumerable of runtime items.</returns>
@@ -44,7 +47,7 @@ namespace BitPatch.DialogLang
 
         /// <summary>
         /// Executes a Game Dialog Script source code from a TextReader (streaming mode).
-        /// Yields runtime items from << statements.
+        /// Yields runtime items from &lt;&lt; statements.
         /// </summary>
         /// <param name="source">The source code to execute.</param>
         /// <returns>Enumerable of runtime items.</returns>

@@ -33,19 +33,6 @@ namespace BitPatch.DialogLang
         }
 
         /// <summary>
-        /// Asserts that the expression is a boolean expression.
-        /// </summary>
-        public static Ast.Expression AssertBoolean(this Ast.Expression expression)
-        {
-            if (expression is not Ast.IBoolean)
-            {
-                throw new SyntaxError("Expression cannot be boolean", expression.Location);
-            }
-
-            return expression;
-        }
-
-        /// <summary>
         /// Gets the Loop instance for the given location, creating a new one if necessary.
         /// </summary>
         /// <param name="loops">The stack of Loop instances.</param>
