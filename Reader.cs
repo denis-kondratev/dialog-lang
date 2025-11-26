@@ -263,7 +263,7 @@ namespace BitPatch.DialogLang
             }
 
             // Return indentation level (column - 1 since columns are 1-based)
-            return _column - 1;
+            return _peek is -1 ? 0 : _column - 1;
         }
     }
 }
