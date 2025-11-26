@@ -75,14 +75,18 @@ namespace BitPatch.DialogLang
         }
 
         /// <summary>
-        /// Extends the location to a new final position on the same line and source.
+        /// Extends the location to a new final position based on the current position of the reader.
         /// </summary>
         /// <param name="location">The base location.</param>
-        /// <param name="final">The final position of the new location range (must be greater than initial).</param>
-        /// <returns>A new location starting at <c>Initial</c> and ending at <c>final</c> on the same line and source.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="final"/> is less than or equal to <c>Initial</c>.</exception>
-        public static Location operator |(Location location, int final)
+        /// <param name="reader">The reader providing the current position.</param>
+        /// <returns>
+        /// A new location starting at <c>Initial</c> and ending at the reader's current
+        /// column on the same line and source.
+        /// </returns>
+        public static Location operator |(Location location, Reader reader)
         {
+            var final = reader.Column;
+
             if (final < location.Final)
             {
                 throw new ArgumentOutOfRangeException(nameof(final), "Final position cannot be less than current final position.");

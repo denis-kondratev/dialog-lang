@@ -1,9 +1,9 @@
 namespace BitPatch.DialogLang
 {
     /// <summary>
-    /// Extension methods for character checks.
+    /// Utility methods for character and string operations.
     /// </summary>
-    internal static class CharExtension
+    internal static class CharUtils
     {
         /// <summary>
         /// Checks if the character is a newline character.
@@ -11,6 +11,35 @@ namespace BitPatch.DialogLang
         public static bool IsNewLine(this char c)
         {
             return c is '\n' or '\r' or '\u2028' or '\u2029' or '\u0085';
+        }
+
+        /// <summary>
+        /// Formats a character as a readable C-style literal, escaping control characters when necessary.
+        /// </summary>
+        /// <param name="c">The character to format.</param>
+        public static string ToPrintable(this char c)
+        {
+            return c switch
+            {
+                '\n' => "\\n",
+                '\r' => "\\r",
+                '\t' => "\\t",
+                '\b' => "\\b",
+                '\f' => "\\f",
+                '\0' => "\\0",
+                ' ' => "' '",
+                _ when char.IsControl(c) => $"\\u{(int)c:X4}",
+                _ => c.ToString(),
+            };
+        }
+
+        /// <summary>
+        /// Formats an integer as a readable C-style literal, escaping control characters when necessary.
+        /// </summary>
+        /// <param name="n">The integer to format.</param>
+        public static string ToPrintable(this int n)
+        {
+            return n is -1 ? "<EOF>" : ((char)n).ToPrintable();
         }
 
         /// <summary>
@@ -40,7 +69,7 @@ namespace BitPatch.DialogLang
         /// <summary>
         /// Checks if the integer represents a valid identifier character.
         /// </summary>
-        public static bool IsIdentifierChar(this int n)
+        public static bool IsIdentifier(this int n)
         {
             if (n is -1)
             {

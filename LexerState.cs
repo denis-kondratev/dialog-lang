@@ -11,11 +11,6 @@ namespace BitPatch.DialogLang
         Default = 0,
 
         /// <summary>
-        /// At the start of a new line, handling indentation.
-        /// </summary>
-        AtLineStart = 1,
-
-        /// <summary>
         /// Reading an interpolated string.
         /// </summary>
         ReadingString = 2,

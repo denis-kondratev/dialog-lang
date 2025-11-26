@@ -35,5 +35,13 @@ namespace BitPatch.DialogLang
         {
             return new Token(TokenType.Dedent, string.Empty, location);
         }
+
+        /// <summary>
+        /// Returns a string representation of the token.
+        /// </summary>
+        public override string ToString()
+        {
+            return $"{Type}({Value}) at {Location}";
+        }
     }
 }
