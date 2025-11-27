@@ -9,6 +9,9 @@ namespace BitPatch.DialogLang
     /// </summary>
     internal class Lexer : IDisposable
     {
+        /// <summary>
+        /// The underlying character reader for the source code.
+        /// </summary>
         private readonly Reader _reader;
 
         /// <summary>
@@ -82,7 +85,10 @@ namespace BitPatch.DialogLang
                     _ => throw new NotSupportedException("Unknown lexer state: " + _state)
                 };
 
-                yield return token;
+                if (token is not null)
+                {
+                    yield return token;
+                }
             }
 
             if (!_reader.IsLineEmpty())
@@ -103,6 +109,7 @@ namespace BitPatch.DialogLang
         /// <summary>
         /// Reads the indentation level and returns Indent/Dedent tokens as needed.
         /// </summary>
+        /// <returns>A tuple containing the token type and the count of tokens to emit.</returns>
         private (TokenType tokenType, int count) ReadIndentation()
         {
             int identLevel = _reader.ReadIndentation();
@@ -131,7 +138,10 @@ namespace BitPatch.DialogLang
             return (TokenType.Dedent, count);
         }
 
-        private Token ReadToken()
+        /// <summary>
+        /// Reads the next token from the source code.
+        /// </summary>
+        private Token? ReadToken()
         {
             AssertStates(LexerState.Default, LexerState.ReadingInlineExpression, "Cannot read token");
 
@@ -139,7 +149,7 @@ namespace BitPatch.DialogLang
 
             if (!_reader.CanRead())
             {
-                return new Token(TokenType.EndOfSource, string.Empty, _reader.GetLocation());
+                return null;
             }
 
             return (char)_reader.Peek() switch
