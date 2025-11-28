@@ -222,17 +222,18 @@ namespace BitPatch.DialogLang
         /// Automatically skips blank lines and comments.
         /// Enforces consistent indentation style (all spaces or all tabs) throughout the file.
         /// </summary>
+        /// <param name="fixedIndent">Optional fixed indentation level to read up to.</param>
         /// <returns>The indentation level (number of spaces/tabs).</returns>
         /// <exception cref="InvalidOperationException">Thrown if not at the start of a line.</exception>
         /// <exception cref="SyntaxError">Thrown if mixed indentation styles are detected.</exception>
-        public int ReadIndentation()
+        public int ReadIndentation(int fixedIndent = int.MaxValue)
         {
             if (!IsAtLineStart())
             {
                 throw new InvalidOperationException($"Cannot read indentation when not at the start of a line.");
             }
 
-            while (CanRead())
+            while (CanRead() && _line <= fixedIndent)
             {
                 var charValue = (char)Peek();
 
@@ -264,6 +265,24 @@ namespace BitPatch.DialogLang
 
             // Return indentation level (column - 1 since columns are 1-based)
             return _peek is -1 ? 0 : _column - 1;
+        }
+
+        /// <summary>
+        /// Skips all occurrences of the specified character.
+        /// </summary>
+        /// <param name="value">The character to skip.</param>
+        /// <returns>The number of characters skipped.</returns>
+        public int SkipAll(char value)
+        {
+            var count = 0;
+
+            while (_peek == value)
+            {
+                Read();
+                count++;
+            }
+
+            return count;
         }
     }
 }

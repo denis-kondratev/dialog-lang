@@ -8,16 +8,21 @@ namespace BitPatch.DialogLang
         /// <summary>
         /// Default state, normal code parsing.
         /// </summary>
-        Default = 0,
+        Default,
 
         /// <summary>
         /// Reading an interpolated string.
         /// </summary>
-        ReadingString = 2,
+        ReadingString,
+
+        /// <summary>
+        /// Reading a multi-line string.
+        /// </summary>
+        ReadingMultiString,
 
         /// <summary>
         /// Reading an expression inside a string.
         /// </summary>
-        ReadingInlineExpression = 3
+        ReadingInlineExpression
     }
 }
