@@ -11,11 +11,6 @@ namespace BitPatch.DialogLang
         Default,
 
         /// <summary>
-        /// The state indicating the indenter needs to lock.
-        /// </summary>
-        Locking,
-
-        /// <summary>
         /// The state indicating the indenter is locked.
         /// </summary>
         Locked

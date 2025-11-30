@@ -483,7 +483,12 @@ namespace BitPatch.DialogLang
             // If only one part and it's a string, return it directly (optimization).
             if (parts.Count is 1 && parts[0] is Ast.InlineString astString)
             {
-                return astString with { Location = openingQuote.Location + closingQuote.Location };
+                return astString with
+                {
+                    Location = openingQuote.Location.Line == closingQuote.Location.Line
+                        ? openingQuote.Location + closingQuote.Location
+                        : openingQuote.Location
+                };
             }
 
             var location = openingQuote.Location.Line == closingQuote.Location.Line

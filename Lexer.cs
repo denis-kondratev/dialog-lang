@@ -350,12 +350,12 @@ namespace BitPatch.DialogLang
                 default:
                     // Triple quotes and more start a multi-line string.
                     _state.Push(LexerState.ReadingMultiString);
-                    _indenter.StartLocking();
                     _multistringQuotes = quotes;
                     var token = new Token(TokenType.StringStart, new string('"', quotes), startLocation | _reader);
                     if (_reader.Peek() is '\n' or '\r' or '\u2028' or '\u2029' or '\u0085')
                     {
                         _reader.Read(); // Consume newline after opening multi-string
+                        _indenter.Locking();
                     }
                     return token;
             }
@@ -440,11 +440,16 @@ namespace BitPatch.DialogLang
             throw new SyntaxError("The string is not closed", _reader.GetLocation());
         }
 
+        /// <summary>
+        /// Reads a multi-line string literal until the closing quotes are found.
+        /// </summary>
+        /// <param name="buffer">The buffer to enqueue tokens to.</param>
         private void ReadMultiString(Queue<Token> buffer)
         {
             AssertState(LexerState.ReadingMultiString, "Cannot read string");
 
             var startLocation = _reader.GetLocation();
+            var final = _reader.Column;
             _stringBuilder.Clear();
 
             while (_reader.CanRead())
@@ -456,9 +461,10 @@ namespace BitPatch.DialogLang
                     case '\\':
                         _reader.Read(); // Consume '\'
                         _stringBuilder.Append(ReadEscapeCharacter());
+                        SetFinal();
                         break;
                     case '{':
-                        _stringBuilder.ToToken(startLocation | _reader)?.EnqueueTo(buffer);
+                        _stringBuilder.ToToken(startLocation | final)?.EnqueueTo(buffer);
                         buffer.Enqueue(ReadSingleToken(TokenType.InlineExpressionStart, '{'));
                         _state.Push(LexerState.ReadingInlineExpression); // Switch to expression reading state
                         return;
@@ -467,29 +473,37 @@ namespace BitPatch.DialogLang
                         var quotes = _reader.SkipAll('"');
                         if (quotes == _multistringQuotes)
                         {
-                            _stringBuilder.ToToken(startLocation | quoteLocation.Initial)?.EnqueueTo(buffer);
+                            _stringBuilder.ToToken(startLocation | final)?.EnqueueTo(buffer);
                             buffer.Enqueue(new Token(TokenType.StringEnd, new string('"', quotes), quoteLocation | _reader));
-                            _indenter.Unlock();
                             _state.Pop(); // Finish string readings
                             return;
                         }
                         else
                         {
                             _stringBuilder.Append(new string('"', quotes));
+                            SetFinal();
                         }
                         break;
                     case '\n' or '\r' or '\u2028' or '\u2029' or '\u0085':
-                        _stringBuilder.Append('\n');
-                        _stringBuilder.ToToken(startLocation | _reader)?.EnqueueTo(buffer);
-                        _reader.Read(); // Consume newline
-                        return;
+                        _stringBuilder.Append(_reader.Read());
+                        _indenter.Locking();
+                        break;
                     default:
                         _stringBuilder.Append(_reader.Read());
+                        SetFinal();
                         break;
                 }
             }
 
-            _stringBuilder.ToToken(startLocation | _reader)?.EnqueueTo(buffer);
+            _stringBuilder.ToToken(startLocation | final)?.EnqueueTo(buffer);
+
+            void SetFinal()
+            {
+                if (startLocation.Line == _reader.Line)
+                {
+                    final = _reader.Column;
+                }
+            }
         }
 
         /// <summary>

@@ -40,21 +40,14 @@ namespace BitPatch.DialogLang
         {
             Assert.IsTrue(_reader.IsAtLineStart(), $"Expected start of line, column {_reader.Column}.");
 
+            if (_state is IndenterState.Locked)
+            {
+                Unlock();
+            }
+
             var startLocation = _reader.GetLocation();
             var last = _levels.Peek();
-            int current = _state is IndenterState.Locked ? _reader.ReadIndentLevel(last) : _reader.ReadIndentLevel();
-
-            if (_state is IndenterState.Locked && current != last)
-            {
-                throw new SyntaxError("Inconsistent indentation", current > 0 ? startLocation | _reader : startLocation);
-            }
-            else if (_state is IndenterState.Locking)
-            {
-                _levels.Push(current);
-                _state = IndenterState.Locked;
-
-                return;
-            }
+            int current = _reader.ReadIndentLevel();
 
             if (current > last)
             {
@@ -65,14 +58,11 @@ namespace BitPatch.DialogLang
                 return;
             }
 
-            var count = 0;
-
             while (current < last)
             {
                 var final = _levels.Pop();
                 last = _levels.TryPeek(out var level) ? level : 0;
                 output.Enqueue(Token.Dedent(new Location(_reader.Source, startLocation.Line, last + 1, final + 1)));
-                count++;
             }
 
             if (current != last)
@@ -82,33 +72,29 @@ namespace BitPatch.DialogLang
         }
 
         /// <summary>
-        /// Starts the locking process to enforce consistent indentation.
+        /// Locks the indenter to enforce consistent indentation.
         /// </summary>
-        public void StartLocking()
+        public void Locking()
         {
-            Assert.IsTrue(_state is IndenterState.Default, $"Expected default state, current: {_state}.");
-            _state = IndenterState.Locking;
-        }
+            Assert.IsTrue(_reader.IsAtLineStart(), $"Expected start of line, column {_reader.Column}.");
 
-        /// <summary>
-        /// Unlocks the indenter to allow flexible indentation.
-        /// </summary>
-        public void Unlock()
-        {
+            var startLocation = _reader.GetLocation();
+            var peek = _levels.Peek();
+            int current = _state is IndenterState.Locked ? _reader.ReadIndentLevel(peek) : _reader.ReadIndentLevel();
+
             switch (_state)
             {
                 case IndenterState.Default:
-                    throw new InvalidOperationException("Cannot unlock when not locked.");
-                case IndenterState.Locking:        
+                    _levels.Push(current);
+                    _state = IndenterState.Locked;
                     break;
+                case IndenterState.Locked when current != peek:
+                    throw new SyntaxError("Inconsistent indentation", startLocation | _reader);
                 case IndenterState.Locked:
-                    _levels.Pop();
                     break;
                 default:
                     throw new InvalidOperationException($"Unknown indenter state: {_state}.");
             }
-
-            _state = IndenterState.Default;
         }
 
         /// <summary>
@@ -116,11 +102,26 @@ namespace BitPatch.DialogLang
         /// </summary>
         public void Empty(Queue<Token> output)
         {
+            if (_state is IndenterState.Locked)
+            {
+                Unlock();
+            }
+
             while (_levels.Count > 1)
             {
                 _levels.Pop();
                 output.Enqueue(Token.Dedent(_reader.GetLocation()));
             }
+        }
+
+        /// <summary>
+        /// Unlocks the indenter from locked state.
+        /// </summary>
+        private void Unlock()
+        {
+            Assert.IsTrue(_state is IndenterState.Locked, "Indenter is not locked.");
+            _state = IndenterState.Default;
+            _levels.Pop();
         }
     }
 }
