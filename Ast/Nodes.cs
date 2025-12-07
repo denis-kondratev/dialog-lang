@@ -163,6 +163,11 @@ namespace BitPatch.DialogLang.Ast
     internal sealed record Output(Expression Expression, Location Location) : Statement(Location);
 
     /// <summary>
+    /// Node representing an input statement (&gt;&gt; identifier).
+    /// </summary>
+    internal sealed record Input(Identifier Identifier, Location Location) : Statement(Location);
+
+    /// <summary>
     /// Node representing a block of statements grouped by indentation.
     /// </summary>
     internal sealed record Block(IReadOnlyList<Statement> Statements, Location Location) : Statement(Location);
