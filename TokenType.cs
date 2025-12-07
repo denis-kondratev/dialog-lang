@@ -20,6 +20,7 @@ namespace BitPatch.DialogLang
         // Operators
         Assign,                // =
         Output,                // <<
+        Input,                 // >>
         And,                   // and
         Or,                    // or
         Not,                   // not

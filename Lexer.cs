@@ -195,7 +195,7 @@ namespace BitPatch.DialogLang
         }
 
         /// <summary>
-        /// Reads operators starting with '&gt;': '&gt;=', or '&gt;'.
+        /// Reads operators starting with '&gt;': '&gt;&gt;', '&gt;=', or '&gt;'.
         /// </summary>
         private Token ReadFromGreaterThanSign()
         {
@@ -203,13 +203,17 @@ namespace BitPatch.DialogLang
 
             _reader.Skip('>'); // Consume first '>'
 
-            if (_reader.Peek() is '=')
+            switch (_reader.Peek())
             {
-                _reader.Read(); // Consume '='
-                return new Token(TokenType.GreaterOrEqual, ">=", startLocation | _reader);
+                case '>':
+                    _reader.Read(); // Consume second '>'
+                    return new Token(TokenType.Input, ">>", startLocation | _reader);
+                case '=':
+                    _reader.Read(); // Consume '='
+                    return new Token(TokenType.GreaterOrEqual, ">=", startLocation | _reader);
+                default:
+                    return new Token(TokenType.GreaterThan, ">", startLocation);
             }
-
-            return new Token(TokenType.GreaterThan, ">", startLocation);
         }
 
         /// <summary>
