@@ -44,6 +44,7 @@ namespace BitPatch.DialogLang
             {
                 TokenType.Identifier => ParseStatementFromIdentifier(),
                 TokenType.Output => ParseOutput(),
+                TokenType.Input => ParseInput(),
                 TokenType.Indent => ParseBlock(),
                 TokenType.While => ParseWhile(),
                 TokenType.If => ParseIf(),
@@ -90,6 +91,20 @@ namespace BitPatch.DialogLang
             Consume(TokenType.Newline); // expect end of statement
 
             return new Ast.Output(expression, startLocation + expression.Location);
+        }
+
+        /// <summary>
+        /// Parses an input statement: &gt;&gt; identifier.
+        /// </summary>
+        private Ast.Input ParseInput()
+        {
+            var startLocation = _current.Location;
+
+            Consume(TokenType.Input); // consume '>>'
+            var identifier = ParseIdentifier();
+            Consume(TokenType.Newline); // expect end of statement
+
+            return new Ast.Input(identifier, startLocation + identifier.Location);
         }
 
         /// <summary>

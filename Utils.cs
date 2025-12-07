@@ -92,5 +92,22 @@ namespace BitPatch.DialogLang
         {
             queue.Enqueue(token);
         }
+
+        /// <summary>
+        /// Converts a native object to a RuntimeValue.
+        /// </summary>
+        /// <param name="value">The object to convert.</param>
+        /// <returns>The converted RuntimeValue.</returns>
+        public static RuntimeValue ObjectToRuntimeValue(object value)
+        {
+            return value switch
+            {
+                int intValue => new RuntimeInteger(intValue),
+                float floatValue => new RuntimeFloat(floatValue),
+                string stringValue => new RuntimeString(stringValue),
+                bool boolValue => new RuntimeBoolean(boolValue),
+                _ => throw new System.NotSupportedException($"Type {value.GetType().Name} is not supported for conversion to RuntimeValue."),
+            };
+        }
     }
 }

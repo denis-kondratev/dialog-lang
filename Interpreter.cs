@@ -81,6 +81,11 @@ namespace BitPatch.DialogLang
                     case Ast.If ifStatement:
                         ResolveIfStatement(ifStatement)?.PushTo(blockStack);
                         break;
+                    case Ast.Input input:
+                        var inputRequest = new RuntimeValueRequest(input.Location);
+                        yield return inputRequest;
+                        _variables[input.Identifier.Name] = inputRequest.GetResult();
+                        break;
                     default:
                         throw new NotSupportedException($"Unsupported statement type: {statement.GetType().Name}");
                 }
