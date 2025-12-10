@@ -1,4 +1,4 @@
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Lexer states for handling different contexts in the source code.

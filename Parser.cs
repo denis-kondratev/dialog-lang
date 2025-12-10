@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System;
 using System.Globalization;
 
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Parser that builds an Abstract Syntax Tree from tokens.

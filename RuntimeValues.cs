@@ -1,4 +1,4 @@
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Represents a runtime value in the interpreter.

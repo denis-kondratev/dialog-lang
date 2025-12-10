@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Lexical analyzer that converts source code into tokens.

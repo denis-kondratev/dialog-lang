@@ -1,4 +1,4 @@
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Token types for the Game Dialog Script language.

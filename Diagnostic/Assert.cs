@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace BitPatch.DialogLang.Diagnostic
+namespace GameDialog.Lang.Diagnostic
 {
     /// <summary>
     /// Provides assertion methods that only execute in DEBUG builds.

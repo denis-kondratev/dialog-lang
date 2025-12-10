@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Base type for all runtime items in the interpreter.

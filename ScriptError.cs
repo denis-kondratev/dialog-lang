@@ -1,6 +1,6 @@
 using System;
 
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Exception thrown when an error occurs during script execution.

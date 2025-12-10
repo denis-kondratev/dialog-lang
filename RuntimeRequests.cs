@@ -1,6 +1,6 @@
 using System;
 
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// A request that is sent from the dialog to the outside to obtain some information.

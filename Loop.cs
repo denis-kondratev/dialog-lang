@@ -1,4 +1,4 @@
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Information about loop iterations for preventing infinite loops.

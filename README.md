@@ -30,7 +30,7 @@ That's it! No complex configurations, JSON files, or XML markup. Just write text
 Integrating the interpreter into your Unity or Godot project is dead simple. Here's all the code you need:
 
 ```csharp
-using BitPatch.DialogLang;
+using GameDialog.Lang;
 
 var script = @"
 playerName = ""Arthur""

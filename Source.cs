@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Represents a source code input for the Game Dialog Script language.

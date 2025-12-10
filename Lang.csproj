@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <RootNamespace>BitPatch.DialogLang</RootNamespace>
+    <RootNamespace>GameDialog.Lang</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>9.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="DialogLang.Tests" />
+    <InternalsVisibleTo Include="Lang.Tests" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Homebrew'">

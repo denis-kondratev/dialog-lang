@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using BitPatch.DialogLang.Diagnostic;
+using GameDialog.Lang.Diagnostic;
 
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Handles indentation tokens based on the current indentation level.

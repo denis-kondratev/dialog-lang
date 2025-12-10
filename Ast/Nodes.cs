@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace BitPatch.DialogLang.Ast
+namespace GameDialog.Lang.Ast
 {
     /// <summary>
     /// Base class for all AST nodes.

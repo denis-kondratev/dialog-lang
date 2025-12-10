@@ -1,4 +1,4 @@
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Represents a single token in the source code.

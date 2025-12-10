@@ -1,6 +1,6 @@
 using System;
 
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Represents a position range in the source code.

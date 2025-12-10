@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Utility methods for the interpreter.

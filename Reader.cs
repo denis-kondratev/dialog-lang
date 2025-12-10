@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Low-level character reader that provides streaming access to source code with location tracking.

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace BitPatch.DialogLang
+namespace GameDialog.Lang
 {
     /// <summary>
     /// Stack to manage lexer states.
